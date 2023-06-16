@@ -9,8 +9,7 @@ from info_search.lab_1.nltk_utils import init_nltk
 from info_search.lab_1.parsers import parse_terms
 from info_search.lab_1.preprocessing import WordsNormalizer, WordsTokenizer
 from info_search.lab_1.readers import EpubReader
-from info_search.lab_2.incidence_matrix import IncidenceMatrixBuilder
-from info_search.lab_2.query import QueryExecutor
+from info_search.lab_2.incidence_matrix import IncidenceMatrixBuilder, IncidenceMatrixQueryExecutor
 
 init_nltk()
 stopwords.words("ukrainian")
@@ -107,7 +106,7 @@ matrix_index = builder.build()
 print(time.time() - start_time)
 
 
-query_exec = QueryExecutor(lexicon, matrix_index)
+query_exec = IncidenceMatrixQueryExecutor(lexicon, matrix_index)
 docs = query_exec.execute("міністерство OR (таґґарт AND NOT джеймс)")
 
 print(docs)

@@ -1,18 +1,20 @@
 import numpy as np
 
+from info_search.lab_2.abc import Index, IndexBuilder, QueryContext, QueryExecutor
 
-class IncidenceMatrixIndex:
+
+class IncidenceMatrixIndex(Index):
     def __init__(self, matrix: np.ndarray):
         self._matrix = matrix
 
-    def search_doc_ids(self, term_id: int | None) -> np.ndarray[int]:
+    def search(self, term_id: int | None) -> np.ndarray[int]:
         if not term_id:
             return np.zeros(shape=self._matrix.shape[1], dtype=np.int8)
 
         return self._matrix[term_id]
 
 
-class IncidenceMatrixBuilder:
+class IncidenceMatrixBuilder(IndexBuilder):
     def __init__(self):
         self.unique_term_ids: set[int] = set()
         self.unique_doc_ids: set[int] = set()
@@ -37,3 +39,41 @@ class IncidenceMatrixBuilder:
 
         incidence_matrix = incidence_matrix.astype(dtype=np.int8)
         return IncidenceMatrixIndex(incidence_matrix)
+
+
+class IncidenceMatrixQueryContext(QueryContext):
+    def term(self, term: str) -> None:
+        term_id = self.lexicon.get_term_id(term)
+        doc_vector = self.index.search(term_id)
+        self.stack.append(doc_vector)
+
+    def not_(self):
+        docs_vector = self.stack.pop()
+        self.stack.append(np.logical_not(docs_vector).astype(np.int8))
+
+    def and_(self):
+        left_docs_vector = self.stack.pop()
+        right_docs_vector = self.stack.pop()
+
+        self.stack.append(
+            np.logical_and(left_docs_vector, right_docs_vector).astype(np.int8)
+        )
+
+    def or_(self):
+        left_docs_vector = self.stack.pop()
+        right_docs_vector = self.stack.pop()
+
+        self.stack.append(
+            np.logical_or(left_docs_vector, right_docs_vector).astype(np.int8)
+        )
+
+    @property
+    def result(self) -> list[str]:
+        docs_vector = self.stack.pop()
+        assert len(self.stack) == 0
+        doc_ids = np.nonzero(docs_vector)[0]
+        return self.lexicon.get_docs(doc_ids)
+
+
+class IncidenceMatrixQueryExecutor(QueryExecutor):
+    QUERY_CONTEXT_CLASS = IncidenceMatrixQueryContext
