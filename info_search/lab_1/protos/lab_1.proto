@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package info_search.lab_1.v1;
 
-message TermFrequency {
-  string term = 1;
-  uint32 frequency = 2;
+message Term {
+  string name = 1;
+  uint32 id = 2;
+  uint32 frequency = 3;
 }
 
 
 message Lexicon {
-  repeated TermFrequency terms_frequency = 1;
+  repeated Term terms = 1;
+  repeated string docs = 2;
 }

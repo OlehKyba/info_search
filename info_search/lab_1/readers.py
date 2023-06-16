@@ -1,8 +1,8 @@
 from typing import Iterable
 
-from tqdm import tqdm
 from bs4 import BeautifulSoup
 from ebooklib import ITEM_DOCUMENT, epub
+from tqdm import tqdm
 
 
 def _create_doc_id(file_name: str, page: str) -> str:

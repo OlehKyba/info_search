@@ -2,53 +2,62 @@ import json
 import pickle
 from typing import Iterable
 
-from info_search.entities import Term
+from ordered_set import OrderedSet
+
 from info_search.lab_1.protos.lab_1_pb2 import Lexicon as ProtoLexicon
-from info_search.lab_1.protos.lab_1_pb2 import TermFrequency
+from info_search.lab_1.protos.lab_1_pb2 import Term
 
 
 class Lexicon:
     def __init__(
         self,
-        init_terms: Iterable[Term] = None,
+        terms: dict[str, list[int]] = None,
+        docs: list[str] = None,
     ):
-        self._term_to_frequency = {}
+        self.terms: dict[str, list[int]] = terms if terms else {}
+        self.docs: OrderedSet[str] = OrderedSet(docs)
 
-        if init_terms:
-            self.add_terms(init_terms)
+    def _set_term(self, term: str) -> int:
+        if row := self.terms.get(term):
+            row[1] += 1
+            return row[0]
+
+        term_id = len(self.terms)
+        self.terms[term] = [term_id, 1]
+        return term_id
+
+    def _set_doc(self, doc_name: str) -> int:
+        return self.docs.add(doc_name)
+
+    def add_term(self, doc_name: str, term: str) -> tuple[int, int]:
+        doc_id = self._set_doc(doc_name)
+        term_id = self._set_term(term)
+        return doc_id, term_id
+
+    def add_terms(self, terms: Iterable[tuple[str, str]]) -> None:
+        for doc_name, term in terms:
+            self.add_term(doc_name, term)
+
+    def get_docs(self, doc_ids: Iterable[int]) -> list[str]:
+        return [self.docs[doc_id] for doc_id in doc_ids]
+
+    def get_term_id(self, term: str) -> int | None:
+        if row := self.terms.get(term):
+            return row[0]
+        return None
 
     @classmethod
-    def from_dict(cls, term_to_frequency: dict[str, int]):
-        lexicon = cls()
-        lexicon._term_to_frequency = term_to_frequency
-        return lexicon
-
-    def __iter__(self) -> Iterable[tuple[str, int]]:
-        return iter(self._term_to_frequency.items())
-
-    def __len__(self) -> int:
-        return len(self._term_to_frequency)
+    def from_dict(cls, lexicon_dict: dict) -> "Lexicon":
+        return cls(**lexicon_dict)
 
     @property
     def total_terms_count(self) -> int:
         total_count = 0
 
-        for _, term_frequency in self:
-            total_count += term_frequency
+        for _, frequency in self.terms.values():
+            total_count += frequency
 
         return total_count
-
-    def add_term(self, term: Term):
-        frequency = self._term_to_frequency.get(term.value, 0)
-        self._term_to_frequency[term.value] = frequency + 1
-
-    def add_terms(self, terms: Iterable[Term]) -> None:
-        for term in terms:
-            frequency = self._term_to_frequency.get(term.value, 0)
-            self._term_to_frequency[term.value] = frequency + 1
-
-    def get_term_frequency(self, term_value: str):
-        return self._term_to_frequency.get(term_value, 0)
 
     # Pickle
     def to_pickle(self) -> bytes:
@@ -60,7 +69,7 @@ class Lexicon:
 
     # JSON
     def to_json(self) -> str:
-        return json.dumps(self._term_to_frequency)
+        return json.dumps({"terms": self.terms, "docs": self.docs.items})
 
     @classmethod
     def from_json(cls, data: str) -> "Lexicon":
@@ -69,23 +78,22 @@ class Lexicon:
     # Protobuf
     def to_proto(self) -> bytes:
         proto = ProtoLexicon(
-            terms_frequency=[
-                TermFrequency(
-                    term=term,
+            terms=[
+                Term(
+                    name=term,
+                    id=term_id,
                     frequency=frequency,
                 )
-                for term, frequency in self
-            ]
+                for term, (term_id, frequency) in self.terms.items()
+            ],
+            docs=self.docs.items,
         )
         return proto.SerializePartialToString()
 
     @classmethod
     def from_proto(cls, proto_bytes) -> "Lexicon":
         proto = ProtoLexicon.FromString(proto_bytes)
-
-        return cls.from_dict(
-            {
-                term_frequency.term: term_frequency.frequency
-                for term_frequency in proto.terms_frequency
-            }
+        return cls(
+            terms={term.name: [term.id, term.frequency] for term in proto.terms},
+            docs=list(proto.docs),
         )

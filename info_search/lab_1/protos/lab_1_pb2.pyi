@@ -11,20 +11,28 @@ from google.protobuf.internal import containers as _containers
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Lexicon(_message.Message):
-    __slots__ = ["terms_frequency"]
-    TERMS_FREQUENCY_FIELD_NUMBER: _ClassVar[int]
-    terms_frequency: _containers.RepeatedCompositeFieldContainer[TermFrequency]
+    __slots__ = ["docs", "terms"]
+    DOCS_FIELD_NUMBER: _ClassVar[int]
+    TERMS_FIELD_NUMBER: _ClassVar[int]
+    docs: _containers.RepeatedScalarFieldContainer[str]
+    terms: _containers.RepeatedCompositeFieldContainer[Term]
     def __init__(
         self,
-        terms_frequency: _Optional[_Iterable[_Union[TermFrequency, _Mapping]]] = ...,
+        terms: _Optional[_Iterable[_Union[Term, _Mapping]]] = ...,
+        docs: _Optional[_Iterable[str]] = ...,
     ) -> None: ...
 
-class TermFrequency(_message.Message):
-    __slots__ = ["frequency", "term"]
+class Term(_message.Message):
+    __slots__ = ["frequency", "id", "name"]
     FREQUENCY_FIELD_NUMBER: _ClassVar[int]
-    TERM_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
     frequency: int
-    term: str
+    id: int
+    name: str
     def __init__(
-        self, term: _Optional[str] = ..., frequency: _Optional[int] = ...
+        self,
+        name: _Optional[str] = ...,
+        id: _Optional[int] = ...,
+        frequency: _Optional[int] = ...,
     ) -> None: ...
