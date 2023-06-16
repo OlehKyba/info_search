@@ -9,7 +9,14 @@ from info_search.lab_1.nltk_utils import init_nltk
 from info_search.lab_1.parsers import parse_terms
 from info_search.lab_1.preprocessing import WordsNormalizer, WordsTokenizer
 from info_search.lab_1.readers import EpubReader
-from info_search.lab_2.incidence_matrix import IncidenceMatrixBuilder, IncidenceMatrixQueryExecutor
+from info_search.lab_2.incidence_matrix import (
+    IncidenceMatrixBuilder,
+    IncidenceMatrixQueryExecutor,
+)
+from info_search.lab_2.inverted_index import (
+    InvertedIndexBuilder,
+    InvertedIndexQueryExecutor,
+)
 
 init_nltk()
 stopwords.words("ukrainian")
@@ -88,25 +95,34 @@ reader = EpubReader(paths)
 tokenizer = WordsTokenizer(stopwords.words("ukrainian"))
 normalizer = WordsNormalizer(MorphAnalyzer(lang="uk"))
 lexicon = Lexicon()
-builder = IncidenceMatrixBuilder()
+matrix_builder = IncidenceMatrixBuilder()
+inverted_builder = InvertedIndexBuilder()
 
 start_time = time.time()
 
 for doc_name, term in parse_terms(reader, tokenizer, normalizer):
     doc_id, term_id = lexicon.add_term(doc_name, term)
-    builder.add_term(doc_id, term_id)
+    matrix_builder.add_term(doc_id, term_id)
+    inverted_builder.add_term(doc_id, term_id)
 
 print(len(lexicon.terms), lexicon.total_terms_count)
 
 
 transformation_run(lexicon)
 
-matrix_index = builder.build()
+matrix_index = matrix_builder.build()
+inverted_index = inverted_builder.build()
 
 print(time.time() - start_time)
 
 
-query_exec = IncidenceMatrixQueryExecutor(lexicon, matrix_index)
-docs = query_exec.execute("міністерство OR (таґґарт AND NOT джеймс)")
+matrix_query_exec = IncidenceMatrixQueryExecutor(lexicon, matrix_index)
+inverted_query_exec = InvertedIndexQueryExecutor(lexicon, inverted_index)
 
-print(docs)
+matrix_docs = matrix_query_exec.execute("міністерство OR (таґґарт AND NOT джеймс)")
+inverted_docs = inverted_query_exec.execute("міністерство OR (таґґарт AND NOT джеймс)")
+
+print(matrix_docs)
+print(inverted_docs)
+
+print(matrix_docs == inverted_docs)

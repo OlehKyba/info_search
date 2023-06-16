@@ -1,6 +1,6 @@
 import abc
-from typing import Type
 from collections import deque
+from typing import Type
 
 from luqum.parser import parser
 
