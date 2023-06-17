@@ -5,6 +5,7 @@ from typing import Type
 from luqum.parser import parser
 
 from info_search.lab_1.lexicon import Lexicon
+from info_search.lab_1.preprocessing import WordsNormalizer
 from info_search.lab_2.query import OperationVisitor
 
 
@@ -59,9 +60,11 @@ class QueryExecutor:
         self,
         lexicon: Lexicon,
         index: Index,
+        normalizer: WordsNormalizer = None,
     ):
         self.lexicon = lexicon
         self.index = index
+        self.normalizer = normalizer
         self.stack = deque()
 
     def execute(self, query: str) -> list[str]:
@@ -69,6 +72,6 @@ class QueryExecutor:
         context = self.QUERY_CONTEXT_CLASS(self.index, self.lexicon)
         visitor = OperationVisitor()
 
-        visitor.visit(tree, context={"query_context": context, "lexicon": self.lexicon})
+        visitor.visit(tree, context={"query_context": context, "lexicon": self.lexicon, "normalizer": self.normalizer})
 
         return context.result

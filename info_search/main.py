@@ -116,11 +116,11 @@ inverted_index = inverted_builder.build()
 print(time.time() - start_time)
 
 
-matrix_query_exec = IncidenceMatrixQueryExecutor(lexicon, matrix_index)
-inverted_query_exec = InvertedIndexQueryExecutor(lexicon, inverted_index)
+matrix_query_exec = IncidenceMatrixQueryExecutor(lexicon, matrix_index, normalizer)
+inverted_query_exec = InvertedIndexQueryExecutor(lexicon, inverted_index, normalizer)
 
-matrix_docs = matrix_query_exec.execute("міністерство OR (таґґарт AND NOT джеймс)")
-inverted_docs = inverted_query_exec.execute("міністерство OR (таґґарт AND NOT джеймс)")
+matrix_docs = matrix_query_exec.execute("міністерство OR (Таґґарт AND NOT Джеймс)")
+inverted_docs = inverted_query_exec.execute("міністерство OR (Таґґарт AND NOT Джеймс)")
 
 print(matrix_docs)
 print(inverted_docs)
