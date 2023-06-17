@@ -7,6 +7,10 @@ class IncidenceMatrixIndex(Index):
     def __init__(self, matrix: np.ndarray):
         self._matrix = matrix
 
+    @property
+    def data_struct(self) -> np.ndarray:
+        return self._matrix
+
     def search(self, term_id: int | None) -> np.ndarray[int]:
         if not term_id:
             return np.zeros(shape=self._matrix.shape[1], dtype=np.int8)

@@ -1,6 +1,6 @@
 import abc
 from collections import deque
-from typing import Type
+from typing import Any, Type
 
 from luqum.parser import parser
 
@@ -12,6 +12,11 @@ from info_search.lab_2.query import OperationVisitor
 class Index(abc.ABC):
     @abc.abstractmethod
     def search(self, term_id: int) -> list[int]:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def data_struct(self) -> Any:
         raise NotImplementedError
 
 

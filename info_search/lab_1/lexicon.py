@@ -46,6 +46,9 @@ class Lexicon:
             return row[0]
         return None
 
+    def get_doc_id(self, doc_name) -> int:
+        return self.docs.index(doc_name)
+
     @classmethod
     def from_dict(cls, lexicon_dict: dict) -> "Lexicon":
         return cls(**lexicon_dict)

@@ -14,6 +14,10 @@ class InvertedIndex(Index):
         if index == len(doc_ids) or doc_ids[index] != doc_id:
             doc_ids.insert(index, doc_id)
 
+    @property
+    def data_struct(self) -> dict[int, list[int]]:
+        return self.inverted_index
+
     def search(self, term_id: int) -> list[int]:
         return self.inverted_index[term_id]
 
