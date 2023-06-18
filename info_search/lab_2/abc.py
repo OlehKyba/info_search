@@ -77,6 +77,13 @@ class QueryExecutor:
         context = self.QUERY_CONTEXT_CLASS(self.index, self.lexicon)
         visitor = OperationVisitor()
 
-        visitor.visit(tree, context={"query_context": context, "lexicon": self.lexicon, "normalizer": self.normalizer})
+        visitor.visit(
+            tree,
+            context={
+                "query_context": context,
+                "lexicon": self.lexicon,
+                "normalizer": self.normalizer,
+            },
+        )
 
         return context.result
