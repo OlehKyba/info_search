@@ -100,7 +100,7 @@ inverted_builder = InvertedIndexBuilder()
 
 start_time = time.time()
 
-for doc_name, term in parse_terms(reader, tokenizer, normalizer):
+for doc_name, term, _ in parse_terms(reader, tokenizer, normalizer):
     doc_id, term_id = lexicon.add_term(doc_name, term)
     matrix_builder.add_term(doc_id, term_id)
     inverted_builder.add_term(doc_id, term_id)
