@@ -142,3 +142,4 @@ cython_debug/
 
 # PyCharm
 .idea/
+info_search/lab_8/msearch
